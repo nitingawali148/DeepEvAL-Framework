@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+03_deepeval_framework/reports/
+
+# DeepEval cache
+.deepeval/
+
+# ChromaDB generated store
+02_rag_explorer/chroma_db/
+
+# RAG user uploads (runtime data)
+02_rag_explorer/data/uploads/*
+!02_rag_explorer/data/uploads/.gitkeep
+
+# Node / frontend
+node_modules/
+01_chatbot/frontend/dist/
+
+# Environment files (never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
