@@ -5,7 +5,7 @@ import os
 import time
 from typing import Any
 
-from deepeval.test_case import ConversationalTestCase, LLMTestCase
+from deepeval.test_case import ConversationalTestCase, LLMTestCase, Turn
 
 from datasets.chatbot_goldens import CHATBOT_GOLDENS, SAFETY_PROMPTS
 from datasets.rag_goldens import RAG_GOLDENS
@@ -134,17 +134,20 @@ def run_metric(metric_id: str, sample_idx: int = 0) -> dict[str, Any]:
         elif md.sample_kind == "conversation":
             convo = CONVERSATIONS[sample_idx % len(CONVERSATIONS)]
             history: list[dict] = []
-            turns: list[LLMTestCase] = []
+            turns: list[Turn] = []
+            last_reply = ""
             for user_msg in convo:
                 reply = _chatbot.chat(user_msg, history=history).reply
+                last_reply = reply
                 history.append({"role": "user", "content": user_msg})
                 history.append({"role": "assistant", "content": reply})
-                turns.append(LLMTestCase(input=user_msg, actual_output=reply))
+                turns.append(Turn(role="user", content=user_msg))
+                turns.append(Turn(role="assistant", content=reply))
             ctc = ConversationalTestCase(turns=turns)
             metric.measure(ctc)
             return _result(md, metric, judge, started,
                            input_=" → ".join(convo),
-                           actual_output=turns[-1].actual_output,
+                           actual_output=last_reply,
                            extra={"transcript": [
                                {"role": "user" if i % 2 == 0 else "assistant",
                                 "content": h["content"]} for i, h in enumerate(history)]})

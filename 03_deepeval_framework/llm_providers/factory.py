@@ -25,7 +25,7 @@ PROVIDERS = {
         "base_url_default": "http://localhost:11434/v1",
         "api_key_env": None,
         "model_env": "JUDGE_MODEL_OLLAMA",
-        "model_default": "gpt-oss:20b",
+        "model_default": "llama3.2:3b",
         "label": "ollama",
     },
 }

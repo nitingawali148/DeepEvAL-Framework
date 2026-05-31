@@ -45,7 +45,7 @@ def main():
     if args.max_goldens:
         env["MAX_GOLDENS"] = str(args.max_goldens)
 
-    cmd = ["pytest", "tests", f"--html={args.html}", "--self-contained-html", "-v"]
+    cmd = [sys.executable, "-m", "pytest", "tests", f"--html={args.html}", "--self-contained-html", "-v"]
     if args.only:
         cmd += ["-m", args.only]
     if args.keyword:

@@ -8,11 +8,22 @@ its metric prompts.
 """
 from __future__ import annotations
 
+import re
+import time
 from typing import Any
 
 import instructor
 from deepeval.models.base_model import DeepEvalBaseLLM
-from openai import OpenAI
+from openai import OpenAI, RateLimitError
+
+
+def _retry_after(exc: RateLimitError) -> float:
+    """Parse 'Please try again in Xs' from a 429 message, default 70s."""
+    try:
+        m = re.search(r"try again in ([\d.]+)s", str(exc))
+        return float(m.group(1)) + 5 if m else 70.0
+    except Exception:
+        return 70.0
 
 
 class CompatibleJudge(DeepEvalBaseLLM):
@@ -35,20 +46,31 @@ class CompatibleJudge(DeepEvalBaseLLM):
         return self._patched
 
     def generate(self, prompt: str, schema: Any | None = None) -> Any:
-        if schema is not None:
-            return self._patched.chat.completions.create(
-                model=self._model,
-                response_model=schema,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0,
-                max_retries=2,
-            )
-        completion = self._raw.chat.completions.create(
-            model=self._model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0,
-        )
-        return completion.choices[0].message.content
+        for attempt in range(5):
+            try:
+                if schema is not None:
+                    return self._patched.chat.completions.create(
+                        model=self._model,
+                        response_model=schema,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0,
+                        max_retries=0,  # let our loop handle retries
+                    )
+                completion = self._raw.chat.completions.create(
+                    model=self._model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0,
+                )
+                return completion.choices[0].message.content
+            except Exception as exc:
+                # Catch both raw RateLimitError and instructor-wrapped versions
+                exc_str = str(exc)
+                is_rate_limit = isinstance(exc, RateLimitError) or "429" in exc_str or "rate_limit_exceeded" in exc_str
+                if not is_rate_limit or attempt == 4:
+                    raise
+                wait = _retry_after(exc)
+                print(f"\n[judge] Rate limited — waiting {wait:.0f}s before retry {attempt + 1}/4 …", flush=True)
+                time.sleep(wait)
 
     async def a_generate(self, prompt: str, schema: Any | None = None) -> Any:
         return self.generate(prompt, schema=schema)

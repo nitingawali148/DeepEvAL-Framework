@@ -1,7 +1,7 @@
 """Metric #19: Multi-turn conversational relevancy — does the chatbot stay coherent across turns?"""
 import pytest
 from deepeval.metrics import ConversationCompletenessMetric
-from deepeval.test_case import ConversationalTestCase, LLMTestCase
+from deepeval.test_case import ConversationalTestCase, LLMTestCase, Turn
 
 
 CONVERSATIONS = [
@@ -27,12 +27,13 @@ def test_conversational_relevancy(chatbot, judge):
     failures = []
     for convo in CONVERSATIONS:
         history: list[dict] = []
-        turns: list[LLMTestCase] = []
+        turns: list[Turn] = []
         for user_msg, _ in convo:
             reply = chatbot.chat(user_msg, history=history).reply
             history.append({"role": "user", "content": user_msg})
             history.append({"role": "assistant", "content": reply})
-            turns.append(LLMTestCase(input=user_msg, actual_output=reply))
+            turns.append(Turn(role="user", content=user_msg))
+            turns.append(Turn(role="assistant", content=reply))
         ctc = ConversationalTestCase(turns=turns)
         metric.measure(ctc)
         if not metric.is_successful():
