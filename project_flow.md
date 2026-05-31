@@ -395,7 +395,46 @@ gantt
 
 ---
 
-## 12. Document Map
+## 12. Models — Full Project Reference
+
+```mermaid
+graph TD
+    subgraph Subsystem A — Chatbot
+        A_GROQ["llama-3.3-70b-versatile\nGroq Cloud\nChatbot answers\nENV: CHATBOT_MODEL"]
+        A_OLL["llama3.2:3b\nOllama local\nChatbot answers\nENV: CHATBOT_MODEL"]
+    end
+    subgraph Subsystem B — RAG
+        B_EMB["nomic-embed-text\nOllama\nEmbedding\nENV: EMBED_MODEL"]
+        B_GROQ["llama-3.3-70b-versatile\nGroq Cloud\nRAG answers\nENV: RAG_MODEL"]
+        B_OLL["llama3.2:3b\nOllama local\nRAG answers\nENV: RAG_MODEL"]
+    end
+    subgraph Subsystem C — Judge
+        C_OAI["gpt-4o-mini\nOpenAI\nJudge\nENV: JUDGE_MODEL_OPENAI"]
+        C_GRQ["openai/gpt-oss-120b\nGroq\nJudge\nENV: JUDGE_MODEL_GROQ"]
+        C_OLL["llama3.2:3b\nOllama\nJudge\nENV: JUDGE_MODEL_OLLAMA"]
+    end
+    subgraph Hardcoded
+        HC["llama-3.3-70b-versatile\nGroq\nSummarization helper\nrunner.py:96"]
+    end
+```
+
+| Role | Model | Provider | Where | Env Override |
+|------|-------|----------|-------|-------------|
+| Chatbot answers | `llama-3.3-70b-versatile` | Groq | `01_chatbot/backend/app.py:28` | `CHATBOT_MODEL` |
+| Chatbot answers (local) | `llama3.2:3b` | Ollama | `01_chatbot/backend/app.py:26` | `CHATBOT_MODEL` |
+| RAG text embedding | `nomic-embed-text` | Ollama | `02_rag_explorer/rag/embed.py:13` | `EMBED_MODEL` |
+| RAG answers | `llama-3.3-70b-versatile` | Groq | `02_rag_explorer/rag/chat.py:26` | `RAG_MODEL` |
+| RAG answers (local) | `llama3.2:3b` | Ollama | `02_rag_explorer/rag/chat.py:24` | `RAG_MODEL` |
+| Summarization helper | `llama-3.3-70b-versatile` | Groq | `03_deepeval_framework/dashboard/runner.py:96` | **hardcoded** |
+| DeepEval judge | `gpt-4o-mini` | OpenAI | `03_deepeval_framework/llm_providers/factory.py:13` | `JUDGE_MODEL_OPENAI` |
+| DeepEval judge | `openai/gpt-oss-120b` | Groq | `03_deepeval_framework/llm_providers/factory.py:20` | `JUDGE_MODEL_GROQ` |
+| DeepEval judge (local) | `llama3.2:3b` | Ollama | `03_deepeval_framework/llm_providers/factory.py:28` | `JUDGE_MODEL_OLLAMA` |
+
+> **One model to note:** `runner.py:96` hardcodes `llama-3.3-70b-versatile` for the Summarization metric's helper call. All other models respect their env vars.
+
+---
+
+## 13. Document Map
 
 | Document | What it covers |
 |----------|---------------|

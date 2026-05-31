@@ -322,7 +322,35 @@ The evaluation framework uses 8 golden Q&A pairs and 5 adversarial safety prompt
 
 ---
 
-## 14. Environment Variables
+## 14. Models Used
+
+| Role | Model | Provider | File | Env Override |
+|------|-------|----------|------|-------------|
+| Answer generation (Groq) | `llama-3.3-70b-versatile` | Groq Cloud | `backend/app.py:28` | `CHATBOT_MODEL` |
+| Answer generation (local) | `llama3.2:3b` | Ollama | `backend/app.py:26` | `CHATBOT_MODEL` |
+
+```mermaid
+flowchart TD
+    CHECK{LLM_PROVIDER\n+ GROQ_API_KEY?}
+    CHECK -->|groq + key set| GROQ["Groq API\nllama-3.3-70b-versatile\ntemp=0.3, max_tokens=400"]
+    CHECK -->|ollama| OLLAMA["Ollama local\nllama3.2:3b\ntemp=0.3, max_tokens=400"]
+    CHECK -->|no key| MOCK["Mock mode\nhardcoded reply\nmodel=mock"]
+    GROQ --> R[ChatResponse\nreply + model + mode]
+    OLLAMA --> R
+    MOCK --> R
+```
+
+**LLM parameters:**
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| `temperature` | `0.3` | Low randomness — policy-accurate, consistent answers |
+| `max_tokens` | `400` | Prevents overly verbose replies |
+| Rate-limit retry | up to 5 attempts | Handles Groq 429 errors with back-off |
+
+---
+
+## 15. Environment Variables
 
 | Variable | Default | Effect |
 |----------|---------|--------|

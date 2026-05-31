@@ -31,7 +31,7 @@ graph TD
     subgraph "Judge LLMs"
         OAI["OpenAI\ngpt-4o-mini"]
         GRQ["Groq\nopenai/gpt-oss-120b"]
-        OLL["Ollama\ngpt-oss:20b"]
+        OLL["Ollama\nllama3.2:3b"]
     end
 
     subgraph "Outputs"
@@ -135,7 +135,7 @@ classDiagram
 |----------|------------|---------------|---------------|
 | `openai` | (default) | `OPENAI_API_KEY` | `gpt-4o-mini` |
 | `groq` | `https://api.groq.com/openai/v1` | `GROQ_API_KEY` | `openai/gpt-oss-120b` |
-| `ollama` | `http://localhost:11434/v1` | n/a | `gpt-oss:20b` |
+| `ollama` | `http://localhost:11434/v1` | n/a | `llama3.2:3b` |
 
 ---
 
@@ -226,6 +226,25 @@ python run_all.py --provider ollama --judge-model gpt-oss:20b
 │       └── dashboard.css
 └── reports/                (generated) HTML pytest reports
 ```
+
+---
+
+## Models Used
+
+```mermaid
+flowchart LR
+    JUDGE_PROVIDER[JUDGE_PROVIDER\nenv var] -->|openai default| OAI["gpt-4o-mini\nOpenAI\nENV: JUDGE_MODEL_OPENAI"]
+    JUDGE_PROVIDER -->|groq| GRQ["openai/gpt-oss-120b\nGroq Cloud\nENV: JUDGE_MODEL_GROQ"]
+    JUDGE_PROVIDER -->|ollama| OLL["llama3.2:3b\nOllama local\nENV: JUDGE_MODEL_OLLAMA"]
+```
+
+| Role | Model | Provider | Env Override |
+|------|-------|----------|-------------|
+| DeepEval judge | `gpt-4o-mini` | OpenAI | `JUDGE_MODEL_OPENAI` |
+| DeepEval judge | `openai/gpt-oss-120b` | Groq | `JUDGE_MODEL_GROQ` |
+| DeepEval judge (local) | `llama3.2:3b` | Ollama | `JUDGE_MODEL_OLLAMA` |
+
+The judge LLM scores every metric. Subsystems A and B use their own models for generation — the judge is **only** for evaluation. Switch provider with `JUDGE_PROVIDER=groq|openai|ollama`.
 
 ---
 

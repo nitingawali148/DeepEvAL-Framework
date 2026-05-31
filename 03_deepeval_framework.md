@@ -137,9 +137,9 @@ flowchart LR
     ENV["JUDGE_PROVIDER\nenv var"]
     FACT["factory.py\nget_judge()"]
 
-    ENV -->|"openai"| OAI["CompatibleJudge\nbase_url=None\napi_key=OPENAI_API_KEY\nmodel=gpt-4o-mini"]
-    ENV -->|"groq"| GRQ["CompatibleJudge\nbase_url=api.groq.com/openai/v1\napi_key=GROQ_API_KEY\nmodel=openai/gpt-oss-120b"]
-    ENV -->|"ollama"| OLL["CompatibleJudge\nbase_url=localhost:11434/v1\napi_key=no-key\nmodel=gpt-oss:20b"]
+    ENV -->|"openai"| OAI["OpenAI\nmodel: gpt-4o-mini\nkey: OPENAI_API_KEY"]
+    ENV -->|"groq"| GRQ["Groq\nmodel: openai/gpt-oss-120b\nkey: GROQ_API_KEY"]
+    ENV -->|"ollama"| OLL["Ollama local\nmodel: llama3.2:3b\nno key required"]
 
     FACT --> OAI
     FACT --> GRQ
@@ -545,7 +545,45 @@ flowchart TD
 
 ---
 
-## 17. Quick Start
+## 17. Models Used
+
+### Judge Models (score DeepEval metrics)
+
+| Provider | Default Model | Env Override | Notes |
+|----------|-------------|-------------|-------|
+| OpenAI | `gpt-4o-mini` | `JUDGE_MODEL_OPENAI` | Highest quality; requires `OPENAI_API_KEY` |
+| Groq | `openai/gpt-oss-120b` | `JUDGE_MODEL_GROQ` | Fast + free tier; requires `GROQ_API_KEY` |
+| Ollama | `llama3.2:3b` | `JUDGE_MODEL_OLLAMA` | Fully local; no key required |
+
+### Target Models (generate the answers being evaluated)
+
+| Subsystem | Model | Provider | Env Override |
+|-----------|-------|----------|-------------|
+| Chatbot (A) | `llama-3.3-70b-versatile` | Groq | `CHATBOT_MODEL` |
+| RAG Explorer (B) | `llama-3.3-70b-versatile` | Groq | `RAG_MODEL` |
+| Summarization helper | `llama-3.3-70b-versatile` | Groq | **hardcoded** in `runner.py:96` |
+| Embedding (B) | `nomic-embed-text` | Ollama | `EMBED_MODEL` |
+
+```mermaid
+flowchart TD
+    subgraph Judge LLM
+        JP[JUDGE_PROVIDER] -->|openai| J_OAI["gpt-4o-mini\nOpenAI"]
+        JP -->|groq| J_GRQ["openai/gpt-oss-120b\nGroq"]
+        JP -->|ollama| J_OLL["llama3.2:3b\nOllama"]
+    end
+    subgraph Target LLMs
+        CB_LLM["llama-3.3-70b-versatile\nGroq\nChatbot answers"]
+        RAG_LLM["llama-3.3-70b-versatile\nGroq\nRAG answers"]
+        EMB_LLM["nomic-embed-text\nOllama\nRAG embeddings"]
+    end
+    Judge LLM -->|scores output of| Target LLMs
+```
+
+> The judge and the target LLMs are **independent**. You can evaluate Groq-powered answers with an Ollama judge, or vice versa.
+
+---
+
+## 18. Quick Start
 
 ```bash
 cd 03_deepeval_framework

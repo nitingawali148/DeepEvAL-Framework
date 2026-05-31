@@ -198,6 +198,29 @@ The pipeline remains fully functional end-to-end even with no external services 
 
 ---
 
+## Models Used
+
+| Role | Model | Provider | Env Override |
+|------|-------|----------|-------------|
+| Text embedding | `nomic-embed-text` | Ollama | `EMBED_MODEL` |
+| Answer generation (default) | `llama-3.3-70b-versatile` | Groq | `RAG_MODEL` |
+| Answer generation (local) | `llama3.2:3b` | Ollama | `RAG_MODEL` |
+
+```mermaid
+flowchart LR
+    subgraph Embedding
+        Q[Query or Chunk text] --> OLL["nomic-embed-text\nOllama :11434\nENV: EMBED_MODEL"]
+        OLL -->|unavailable| FB["Deterministic fallback\nblake2b hash vectors\n64-dim"]
+    end
+    subgraph Generation
+        CTX[Retrieved context] --> LLM_GROQ["llama-3.3-70b-versatile\nGroq Cloud\nENV: RAG_MODEL"]
+        CTX -->|LLM_PROVIDER=ollama| LLM_OLL["llama3.2:3b\nOllama local\nENV: RAG_MODEL"]
+        CTX -->|no GROQ_API_KEY| MOCK["Mock mode\nlists chunk IDs"]
+    end
+```
+
+---
+
 ## How DeepEval Evaluates This Subsystem
 
 Subsystem C calls this service via `RagClient` and builds `LLMTestCase` objects with `retrieval_context` from the `/api/chat` response:

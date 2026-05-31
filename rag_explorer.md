@@ -57,7 +57,7 @@ ShopSphere RAG (Retrieval-Augmented Generation) pipeline. A FastAPI app on port 
 ```mermaid
 graph TD
     subgraph Browser
-        UI[Web UI\nindex / ingest / search / chat pages]
+        UI["Web UI\nindex / ingest / search / chat pages"]
     end
 
     subgraph Port 8202 — RAG Explorer
@@ -146,7 +146,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    INPUT[Input: directory path\nor uploaded file] --> LOAD
+    INPUT["Input: directory path\nor uploaded file"] --> LOAD
 
     LOAD{File type?}
     LOAD -->|.md / .txt| TXT[load_text\nread UTF-8]
@@ -156,7 +156,7 @@ flowchart TD
 
     DOC --> CHUNK[chunk_document\nchunk_size=500 chars\noverlap=60 chars]
     CHUNK --> SNAP[Snap to sentence boundary\nlast period or newline\nin final 80 chars]
-    SNAP --> CHUNKS[list of Chunk\nid=source#index\nchar_start / char_end]
+    SNAP --> CHUNKS["list of Chunk\nid: source-index\nchar_start / char_end"]
 
     CHUNKS --> EMBED[embed_texts\none embedding per chunk]
     EMBED --> STORE[store.add_chunks\nupsert into ChromaDB]

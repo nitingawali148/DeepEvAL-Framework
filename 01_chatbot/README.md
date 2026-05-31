@@ -170,6 +170,24 @@ This lets the UI and DeepEval evaluation run without API credentials (scores wil
 
 ---
 
+## Models Used
+
+| Role | Model | Provider | Env Override |
+|------|-------|----------|-------------|
+| Answer generation (default) | `llama-3.3-70b-versatile` | Groq | `CHATBOT_MODEL` |
+| Answer generation (local) | `llama3.2:3b` | Ollama | `CHATBOT_MODEL` |
+
+```mermaid
+flowchart LR
+    ENV[LLM_PROVIDER env var] -->|groq default| G["llama-3.3-70b-versatile\nGroq Cloud\ntemp=0.3, max_tokens=400"]
+    ENV -->|ollama| O["llama3.2:3b\nOllama local\ntemp=0.3, max_tokens=400"]
+    ENV -->|no key| M["mock mode\nhardcoded reply"]
+```
+
+Both models are configurable via the `CHATBOT_MODEL` environment variable. If `GROQ_API_KEY` is not set, the chatbot falls back to mock mode regardless of provider.
+
+---
+
 ## How DeepEval Evaluates This Subsystem
 
 Subsystem C calls this service via `ChatbotClient` and builds `LLMTestCase` objects:

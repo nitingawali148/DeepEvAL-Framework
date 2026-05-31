@@ -8,13 +8,13 @@ A complete, locally-runnable **LLM evaluation lab** for e-commerce AI features. 
 
 ```mermaid
 graph TD
-    A["01_chatbot<br/>ShopSphere Chatbot<br/>React + FastAPI + Groq<br/>:5173 / :8201"]
-    B["02_rag_explorer<br/>RAG Explorer<br/>FastAPI + ChromaDB + Ollama + Groq<br/>:8202"]
-    C["03_deepeval_framework<br/>Evaluation Engine<br/>DeepEval + pytest + Dashboard<br/>:8203"]
+    A["01_chatbot\nShopSphere Chatbot\nReact + FastAPI + Groq\n:5173 / :8201"]
+    B["02_rag_explorer\nRAG Explorer\nFastAPI + ChromaDB + Ollama + Groq\n:8202"]
+    C["03_deepeval_framework\nEvaluation Engine\nDeepEval + pytest + Dashboard\n:8203"]
 
     A -->|"HTTP POST /chat"| C
     B -->|"HTTP POST /api/chat"| C
-    C -->|"Judge LLM scores"| J["Judge LLM<br/>OpenAI / Groq / Ollama"]
+    C -->|"Judge LLM scores"| J["Judge LLM\nOpenAI / Groq / Ollama"]
 
     style A fill:#dbeafe,stroke:#3b82f6
     style B fill:#dcfce7,stroke:#22c55e
@@ -195,6 +195,40 @@ The same `CompatibleJudge` class handles all three — OpenAI, Groq, and Ollama 
 | G-Eval | Completeness, Correctness, Citation, Helpfulness | Chatbot + RAG | 0.5–0.7 |
 | Conversational | Conversation Completeness, Knowledge Retention | Chatbot | 0.5 |
 | Synthetic | Summarization | Independent | 0.5 |
+
+---
+
+## Models Used
+
+```mermaid
+flowchart LR
+    subgraph Generation
+        G1["llama-3.3-70b-versatile\nGroq\nChatbot answers\nRAG answers\nSummarization"]
+        G2["llama3.2:3b\nOllama local\nChatbot answers\nRAG answers"]
+    end
+    subgraph Embedding
+        E1["nomic-embed-text\nOllama\nRAG chunk and query"]
+    end
+    subgraph Judge
+        J1["gpt-4o-mini\nOpenAI"]
+        J2["openai/gpt-oss-120b\nGroq"]
+        J3["llama3.2:3b\nOllama local"]
+    end
+```
+
+| Role | Model | Provider | File | Env Override |
+|------|-------|----------|------|-------------|
+| Chatbot answers | `llama-3.3-70b-versatile` | Groq | `01_chatbot/backend/app.py:28` | `CHATBOT_MODEL` |
+| Chatbot answers (local) | `llama3.2:3b` | Ollama | `01_chatbot/backend/app.py:26` | `CHATBOT_MODEL` |
+| RAG answers | `llama-3.3-70b-versatile` | Groq | `02_rag_explorer/rag/chat.py:26` | `RAG_MODEL` |
+| RAG answers (local) | `llama3.2:3b` | Ollama | `02_rag_explorer/rag/chat.py:24` | `RAG_MODEL` |
+| Text embedding | `nomic-embed-text` | Ollama | `02_rag_explorer/rag/embed.py:13` | `EMBED_MODEL` |
+| Summarization helper | `llama-3.3-70b-versatile` | Groq | `03_deepeval_framework/dashboard/runner.py:96` | **hardcoded** |
+| DeepEval judge | `gpt-4o-mini` | OpenAI | `03_deepeval_framework/llm_providers/factory.py:13` | `JUDGE_MODEL_OPENAI` |
+| DeepEval judge | `openai/gpt-oss-120b` | Groq | `03_deepeval_framework/llm_providers/factory.py:20` | `JUDGE_MODEL_GROQ` |
+| DeepEval judge (local) | `llama3.2:3b` | Ollama | `03_deepeval_framework/llm_providers/factory.py:28` | `JUDGE_MODEL_OLLAMA` |
+
+> **Note:** The summarization helper in `runner.py` has `llama-3.3-70b-versatile` hardcoded and does not respect `RAG_MODEL` or `JUDGE_MODEL_GROQ`.
 
 ---
 

@@ -468,7 +468,39 @@ The evaluation framework uses 8 golden cases with expected context keywords and 
 
 ---
 
-## 17. Environment Variables
+## 17. Models Used
+
+| Role | Model | Provider | File | Env Override |
+|------|-------|----------|------|-------------|
+| Text embedding | `nomic-embed-text` | Ollama | `rag/embed.py:13` | `EMBED_MODEL` |
+| Answer generation (Groq) | `llama-3.3-70b-versatile` | Groq Cloud | `rag/chat.py:26` | `RAG_MODEL` |
+| Answer generation (local) | `llama3.2:3b` | Ollama | `rag/chat.py:24` | `RAG_MODEL` |
+
+```mermaid
+flowchart LR
+    subgraph Embedding
+        T[Text] --> OLL_EMB["nomic-embed-text\nOllama :11434\nENV: EMBED_MODEL\nOLLAMA_HOST"]
+        OLL_EMB -->|Ollama down| FB["blake2b hash fallback\n64-dim deterministic vector"]
+    end
+    subgraph Generation
+        CTX[Context + Question] --> PROV{LLM_PROVIDER?}
+        PROV -->|groq + key| GROQ["llama-3.3-70b-versatile\nGroq Cloud\ntemp=0.2, max_tokens=500\nENV: RAG_MODEL"]
+        PROV -->|ollama| OLL_GEN["llama3.2:3b\nOllama local\ntemp=0.2, max_tokens=500\nENV: RAG_MODEL"]
+        PROV -->|no key| MOCK["Mock reply\nlists chunk IDs"]
+    end
+```
+
+**Key differences from the chatbot's LLM settings:**
+
+| Setting | Chatbot | RAG |
+|---------|---------|-----|
+| `temperature` | `0.3` | `0.2` — stricter grounding |
+| `max_tokens` | `400` | `500` — longer context-grounded answers |
+| Knowledge source | Hardcoded system prompt | Retrieved chunks at query time |
+
+---
+
+## 18. Environment Variables
 
 | Variable | Default | Effect |
 |----------|---------|--------|
