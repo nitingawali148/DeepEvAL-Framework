@@ -29,6 +29,12 @@ node_modules/
 .env
 *.env
 
+# DeepEval internal cache and telemetry
+.deepeval/
+
+# Generated pytest HTML reports
+03_deepeval_framework/reports/
+
 # OS
 .DS_Store
 Thumbs.db
