@@ -60,7 +60,7 @@ graph TD
         UI["Web UI\nindex / ingest / search / chat pages"]
     end
 
-    subgraph Port 8202 — RAG Explorer
+    subgraph "Port 8202 - RAG Explorer"
         APP[app.py\nFastAPI]
         ING[ingest.py\nload + chunk]
         EMB[embed.py\nOllama embeddings]

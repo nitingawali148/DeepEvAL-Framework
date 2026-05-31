@@ -8,7 +8,7 @@ This document covers the complete picture: how the three subsystems connect, how
 
 ```mermaid
 graph TD
-    subgraph "Subsystem A — ShopSphere Chatbot"
+    subgraph "Subsystem A - ShopSphere Chatbot"
         UI["React Chat UI\n:5173"]
         CB["FastAPI Chatbot\n:8201"]
         GROQ_A["Groq LLM\nllama-3.3-70b-versatile"]
@@ -16,7 +16,7 @@ graph TD
         CB --> GROQ_A
     end
 
-    subgraph "Subsystem B — RAG Explorer"
+    subgraph "Subsystem B - RAG Explorer"
         RAG_APP["FastAPI RAG\n:8202"]
         OLLAMA["Ollama\nnomic-embed-text"]
         CHROMA["ChromaDB\nvector store"]
@@ -28,7 +28,7 @@ graph TD
         RAG_APP --> GROQ_B
     end
 
-    subgraph "Subsystem C — DeepEval Framework"
+    subgraph "Subsystem C - DeepEval Framework"
         DASH["Dashboard :8203\nor pytest CLI"]
         RUNNER["runner.py\nrun_metric()"]
         REG["registry.py\n22 MetricDef"]
@@ -276,7 +276,7 @@ graph LR
 
 ```mermaid
 graph TD
-    subgraph "Subsystem A — Chatbot Metrics (10)"
+    subgraph "Subsystem A - Chatbot Metrics (10)"
         AR_C["Answer Relevancy"]
         FA_C["Faithfulness"]
         HA_C["Hallucination"]
@@ -288,7 +288,7 @@ graph TD
         CC_C["Conv. Completeness"]
         KR_C["Knowledge Retention"]
     end
-    subgraph "Subsystem B — RAG Metrics (11)"
+    subgraph "Subsystem B - RAG Metrics (11)"
         CP_R["Contextual Precision"]
         CR_R["Contextual Recall"]
         CV_R["Contextual Relevancy"]
@@ -399,16 +399,16 @@ gantt
 
 ```mermaid
 graph TD
-    subgraph Subsystem A — Chatbot
+    subgraph "Subsystem A - Chatbot"
         A_GROQ["llama-3.3-70b-versatile\nGroq Cloud\nChatbot answers\nENV: CHATBOT_MODEL"]
         A_OLL["llama3.2:3b\nOllama local\nChatbot answers\nENV: CHATBOT_MODEL"]
     end
-    subgraph Subsystem B — RAG
+    subgraph "Subsystem B - RAG"
         B_EMB["nomic-embed-text\nOllama\nEmbedding\nENV: EMBED_MODEL"]
         B_GROQ["llama-3.3-70b-versatile\nGroq Cloud\nRAG answers\nENV: RAG_MODEL"]
         B_OLL["llama3.2:3b\nOllama local\nRAG answers\nENV: RAG_MODEL"]
     end
-    subgraph Subsystem C — Judge
+    subgraph "Subsystem C - Judge"
         C_OAI["gpt-4o-mini\nOpenAI\nJudge\nENV: JUDGE_MODEL_OPENAI"]
         C_GRQ["openai/gpt-oss-120b\nGroq\nJudge\nENV: JUDGE_MODEL_GROQ"]
         C_OLL["llama3.2:3b\nOllama\nJudge\nENV: JUDGE_MODEL_OLLAMA"]

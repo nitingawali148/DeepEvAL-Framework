@@ -67,7 +67,7 @@ graph TD
         UI[Dashboard UI\ndashboard.html]
     end
 
-    subgraph Port 8203 — DeepEval Dashboard
+    subgraph "Port 8203 - DeepEval Dashboard"
         APP[app.py\nFastAPI]
         REG[registry.py\n21 MetricDefs]
         RUN[runner.py\nexecutes metric]
@@ -75,11 +75,11 @@ graph TD
         APP --> RUN
     end
 
-    subgraph Port 8201 — Chatbot
+    subgraph "Port 8201 - Chatbot"
         CB[backend/app.py\nFastAPI + Groq]
     end
 
-    subgraph Port 8202 — RAG Explorer
+    subgraph "Port 8202 - RAG Explorer"
         RAG[rag/chat.py\nFastAPI + Vector DB]
     end
 

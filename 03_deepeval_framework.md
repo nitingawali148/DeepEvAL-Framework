@@ -54,31 +54,31 @@ flowchart LR
 
 ```mermaid
 graph TD
-    subgraph "Layer 1 — Execution"
+    subgraph "Layer 1 - Execution"
         DASH["dashboard/app.py\nFastAPI :8203\nLive UI"]
         PYTEST["tests/test_NN_*.py\npytest\nBatch run"]
         CLI["run_all.py\npytest wrapper\nCLI flags"]
     end
 
-    subgraph "Layer 2 — Registry"
+    subgraph "Layer 2 - Registry"
         REG["dashboard/registry.py\nMetricDef × 22\nfactory functions"]
     end
 
-    subgraph "Layer 3 — Runner"
+    subgraph "Layer 3 - Runner"
         RUN["dashboard/runner.py\nrun_metric()\nBuilds test cases\nCalls targets\nRuns metrics"]
     end
 
-    subgraph "Layer 4 — Providers"
+    subgraph "Layer 4 - Providers"
         BASE["llm_providers/base.py\nCompatibleJudge"]
         FACT["llm_providers/factory.py\nget_judge()"]
     end
 
-    subgraph "Layer 5 — Targets"
+    subgraph "Layer 5 - Targets"
         CBOT["targets/chatbot.py\nChatbotClient"]
         RAGC["targets/rag_pipeline.py\nRagClient"]
     end
 
-    subgraph "Layer 6 — Data"
+    subgraph "Layer 6 - Data"
         CGD["datasets/chatbot_goldens.py"]
         RGD["datasets/rag_goldens.py"]
     end
