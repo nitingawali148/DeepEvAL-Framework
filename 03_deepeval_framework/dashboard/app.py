@@ -28,7 +28,7 @@ from llm_providers.factory import PROVIDERS, _resolve_provider  # noqa: E402
 from targets import ChatbotClient, RagClient  # noqa: E402
 
 from .registry import REGISTRY, REGISTRY_BY_ID, list_for_target  # noqa: E402
-from .runner import run_metric  # noqa: E402
+from .runner import run_metric, list_samples  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(HERE / "templates"))
@@ -85,6 +85,7 @@ def metrics(target: str | None = None):
                 "display_threshold": m.display_threshold,
                 "sample_kind": m.sample_kind,
                 "requires": m.requires,
+                "samples": list_samples(m.id),
             }
             for m in rows
         ]

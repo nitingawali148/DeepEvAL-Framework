@@ -198,9 +198,24 @@ code, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size:
 .hint { color: var(--mute); font-size: 11px; }
 
 .card footer {
-  display: flex; gap: 8px; justify-content: space-between;
+  display: flex; flex-direction: column; gap: 8px;
 }
-.card footer .btn { flex: 1; }
+
+.q-label {
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 11px; color: var(--mute);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.question-select {
+  padding: 7px 9px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); font: inherit; font-size: 13px;
+  cursor: pointer; text-transform: none; letter-spacing: 0;
+  width: 100%; color: var(--ink);
+}
+.question-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+.footer-btns { display: flex; gap: 8px; }
+.footer-btns .btn { flex: 1; }
 
 dialog#detail {
   max-width: 760px; width: 90%;

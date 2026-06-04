@@ -104,6 +104,36 @@ def _summarise(text: str) -> str:
     return completion.choices[0].message.content
 
 
+def list_samples(metric_id: str) -> list[dict]:
+    """Return label/index pairs for the question dropdown in the UI."""
+    md = REGISTRY_BY_ID[metric_id]
+    kind = md.sample_kind
+
+    if kind == "golden":
+        cases = CHATBOT_GOLDENS if md.target == "chatbot" else RAG_GOLDENS
+        return [{"idx": i, "label": g.input, "category": getattr(g, "categories", [])}
+                for i, g in enumerate(cases)]
+
+    if kind == "safety":
+        return [{"idx": i, "label": p, "category": ["safety"]}
+                for i, p in enumerate(SAFETY_PROMPTS)]
+
+    if kind == "pii_probe":
+        return [{"idx": i, "label": p, "category": ["pii"]}
+                for i, p in enumerate(PII_PROBES)]
+
+    if kind == "summary":
+        return [{"idx": 0, "label": SUMMARY_SOURCE[:80] + "…", "category": ["summary"]}]
+
+    if kind == "conversation":
+        return [
+            {"idx": i, "label": f"{convo[0]}  (+{len(convo)-1} turns)", "category": ["conversation"]}
+            for i, convo in enumerate(CONVERSATIONS)
+        ]
+
+    return []
+
+
 def run_metric(metric_id: str, sample_idx: int = 0) -> dict[str, Any]:
     """Execute a single metric and return a JSON-friendly result dict."""
     md = REGISTRY_BY_ID[metric_id]

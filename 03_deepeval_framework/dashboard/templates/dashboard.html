@@ -108,11 +108,23 @@ function classifyResult(r) {
   return r.passed ? { cls: "pass", label: "Pass" } : { cls: "fail", label: "Fail" };
 }
 
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function truncate(s, n) {
+  return s.length > n ? s.slice(0, n) + "…" : s;
+}
+
 function metricCard(m) {
   const card = document.createElement("article");
   card.className = `card cat-${m.category}`;
   card.dataset.id = m.id;
   card.dataset.category = m.category;
+
+  const options = (m.samples || []).map((s) =>
+    `<option value="${s.idx}">${escHtml(truncate(s.label, 60))}</option>`
+  ).join("");
+
   card.innerHTML = `
     <header>
       <div class="meta">
@@ -127,11 +139,17 @@ function metricCard(m) {
       <div class="state pending">
         <span class="badge">Pending</span>
       </div>
-      <small class="hint">Click Run to evaluate</small>
+      <small class="hint">Select a question and click Run</small>
     </div>
     <footer>
-      <button class="btn run" data-id="${m.id}">▶ Run</button>
-      <button class="btn ghost details" disabled>Details</button>
+      <label class="q-label">
+        <span>Question</span>
+        <select class="question-select">${options}</select>
+      </label>
+      <div class="footer-btns">
+        <button class="btn run" data-id="${m.id}">▶ Run</button>
+        <button class="btn ghost details" disabled>Details</button>
+      </div>
     </footer>
   `;
   return card;
@@ -166,14 +184,16 @@ function renderResult(card, result) {
 async function runMetric(metricId) {
   const card = grid.querySelector(`[data-id="${CSS.escape(metricId)}"]`);
   if (!card) return;
+  const sampleIdx = parseInt(card.querySelector(".question-select")?.value ?? "0", 10) || 0;
+  const selectedLabel = card.querySelector(".question-select")?.selectedOptions[0]?.text ?? "";
   card.classList.add("running");
   const out = card.querySelector(".result");
-  out.innerHTML = `<div class="state running"><span class="badge">Running…</span></div><div class="bar"><div class="bar-fill running" style="width:30%"></div></div><small class="hint">Waiting for judge…</small>`;
+  out.innerHTML = `<div class="state running"><span class="badge">Running…</span></div><div class="bar"><div class="bar-fill running" style="width:30%"></div></div><small class="hint mono">Q: ${escHtml(truncate(selectedLabel, 60))}</small>`;
   try {
     const r = await fetch("/api/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ metric_id: metricId }),
+      body: JSON.stringify({ metric_id: metricId, sample_idx: sampleIdx }),
     });
     const data = await r.json();
     if (data.passed === true) counts.pass++;
