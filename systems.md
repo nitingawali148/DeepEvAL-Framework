@@ -8,16 +8,12 @@ then built a grading machine that gives both assistants report cards.
 
 ## The Big Picture (3 Systems)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                   │
-│   System A            System B              System C             │
-│  (Chatbot)         (Smart Search)           (Grader)             │
-│                                                                   │
-│  Answers from       Looks up docs         Scores both            │
-│  memory only    →   then answers     →    on 22 tests            │
-│                                                                   │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    A["System A<br/>(Chatbot)<br/>Answers from memory only"]
+    B["System B<br/>(Smart Search)<br/>Looks up docs then answers"]
+    C["System C<br/>(Grader)<br/>Scores both on 22 tests"]
+    A --> B --> C
 ```
 
 ---
@@ -33,14 +29,13 @@ Think of a new employee who memorised the entire company manual before starting 
 They know the return policy, shipping policy, refund rules — all from memory.
 If you ask something not in the manual, they might **make up an answer** (this is called *hallucination*).
 
-```
-You type:  "How do I return a broken item?"
-     ↓
-The chatbot reads its memory (built-in manual)
-     ↓
-Calls a cloud AI model (Groq / Ollama) to write a nice reply
-     ↓
-You see:   "You can return broken items within 30 days..."
+```mermaid
+flowchart TD
+    A["You type: How do I return a broken item?"]
+    B["Chatbot reads its memory (built-in manual)"]
+    C["Calls a cloud AI model (Groq / Ollama) to write a reply"]
+    D["You see: You can return broken items within 30 days..."]
+    A --> B --> C --> D
 ```
 
 ### Where does it run?
@@ -78,28 +73,25 @@ When you ask a question, the librarian:
 This makes the answer much more accurate and traceable — you can see exactly which document it came from.
 
 ### How the documents are prepared (one-time setup)
-```
-5 document files (.md)
-    ↓  Cut into small pieces (~500 characters each)
-21 chunks (small text pieces)
-    ↓  Each chunk is turned into a list of 768 numbers
-       (this is called an "embedding" — a mathematical fingerprint)
-21 fingerprints stored in a database (ChromaDB)
+```mermaid
+flowchart TD
+    A["5 document files (.md)"]
+    B["21 chunks — small text pieces, ~500 characters each"]
+    C["21 fingerprints stored in ChromaDB"]
+    A -->|"Cut into small pieces"| B
+    B -->|"Each chunk converted to 768 numbers (embedding)"| C
 ```
 
 ### How a question is answered
-```
-You type:  "What is the refund policy?"
-     ↓
-Your question is also turned into a fingerprint (768 numbers)
-     ↓
-The database finds the 4 most similar fingerprints
-     ↓
-Those 4 chunks of text are handed to the AI as reading material
-     ↓
-The AI writes an answer based only on those 4 chunks
-     ↓
-You see the answer + which document each piece came from
+```mermaid
+flowchart TD
+    A["You type: What is the refund policy?"]
+    B["Question converted to a fingerprint (768 numbers)"]
+    C["Database finds the 4 most similar fingerprints"]
+    D["Those 4 chunks handed to the AI as reading material"]
+    E["AI writes answer based only on those 4 chunks"]
+    F["You see the answer + which document each piece came from"]
+    A --> B --> C --> D --> E --> F
 ```
 
 ### Where does it run?
@@ -181,18 +173,15 @@ The teacher reads each answer and gives it marks:
 | Summarization | Can it summarise a document accurately? |
 
 ### How one test run works
-```
-The Grader picks a test question  (e.g., "What is the return policy?")
-     ↓
-Sends the question to System A or B
-     ↓
-Gets back the answer
-     ↓
-Gives the answer + the question to the judge AI
-     ↓
-Judge AI reads and scores it (0.0 to 1.0)
-     ↓
-Score appears on the dashboard  (green = pass, red = fail)
+```mermaid
+flowchart TD
+    A["Grader picks a test question (e.g. What is the return policy?)"]
+    B["Sends the question to System A or B"]
+    C["Gets back the answer"]
+    D["Gives answer + question to the judge AI"]
+    E["Judge AI reads and scores it (0.0 to 1.0)"]
+    F["Score appears on the dashboard (green = pass, red = fail)"]
+    A --> B --> C --> D --> E --> F
 ```
 
 ### Two ways to run tests
@@ -220,30 +209,20 @@ Run `python run_all.py` → wait → get a full HTML report with every test resu
 
 ## How All Three Systems Talk to Each Other
 
-```
-                 ┌─────────────────┐
-                 │   You (User)    │
-                 └────────┬────────┘
-                          │
-          ┌───────────────┼───────────────┐
-          │               │               │
-          ▼               ▼               ▼
-  ┌──────────────┐ ┌─────────────┐ ┌───────────────┐
-  │  System A    │ │  System B   │ │   System C    │
-  │  Chatbot     │ │  RAG Search │ │   Grader      │
-  │  :8201/:5173 │ │  :8202      │ │   :8203       │
-  └──────┬───────┘ └──────┬──────┘ └───────┬───────┘
-         │                │                │
-         │                │     calls      │
-         │                └────────────────┤
-         └─────────────────────────────────┤
-                                           │
-                                           ▼
-                                   ┌──────────────┐
-                                   │  Judge AI    │
-                                   │ (Groq/Ollama)│
-                                   │  Scores 0–1  │
-                                   └──────────────┘
+```mermaid
+flowchart TD
+    User["You (User)"]
+    A["System A — Chatbot<br/>:8201 / :5173"]
+    B["System B — RAG Search<br/>:8202"]
+    C["System C — Grader<br/>:8203"]
+    J["Judge AI<br/>Groq / Ollama<br/>Scores 0–1"]
+
+    User --> A
+    User --> B
+    User --> C
+    C -->|calls| A
+    C -->|calls| B
+    C --> J
 ```
 
 The Grader (System C) is the glue — it calls System A and System B,
