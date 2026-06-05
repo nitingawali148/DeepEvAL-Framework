@@ -120,11 +120,24 @@ class VectorStore:
 
     def search(self, query_embedding: Sequence[float], top_k: int = 4) -> list[Hit]:
         if self.client is not None and self.collection is not None:
-            result = self.collection.query(
-                query_embeddings=[list(query_embedding)],
-                n_results=top_k,
-                include=["documents", "metadatas", "distances"],
-            )
+            count = self.collection.count()
+            if count == 0:
+                return []
+            actual_top_k = min(top_k, count)
+            try:
+                result = self.collection.query(
+                    query_embeddings=[list(query_embedding)],
+                    n_results=actual_top_k,
+                    include=["documents", "metadatas", "distances"],
+                )
+            except Exception as exc:
+                raise RuntimeError(
+                    f"ChromaDB query failed: {exc}. "
+                    "This usually means the query embedding dimension doesn't match the stored "
+                    "embeddings. The collection was likely indexed with Ollama embeddings (768-dim) "
+                    "but queries are now using the fallback (64-dim). "
+                    "Fix: start Ollama (`ollama serve`) or reset and re-seed the store via POST /api/ingest/seed?reset=true."
+                ) from exc
             hits: list[Hit] = []
             if not result["ids"] or not result["ids"][0]:
                 return hits

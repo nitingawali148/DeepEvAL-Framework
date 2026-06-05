@@ -176,7 +176,10 @@ def api_search(req: SearchRequest):
 
 @app.post("/api/chat")
 def api_chat(req: ChatRequest):
-    result = answer_with_rag(req.message, store, top_k=req.top_k, history=req.history)
+    try:
+        result = answer_with_rag(req.message, store, top_k=req.top_k, history=req.history)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}")
     return {
         "answer": result.answer,
         "sources": result.sources,

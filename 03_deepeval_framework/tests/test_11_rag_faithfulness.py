@@ -14,6 +14,9 @@ def test_rag_faithfulness(rag, rag_alive, rag_goldens, judge):
     failures = []
     for g in rag_goldens:
         result = rag.chat(g.input)
+        if not result.retrieval_context:
+            failures.append((g.input, 0.0, "no documents retrieved — store empty or embedding mismatch"))
+            continue
         tc = LLMTestCase(
             input=g.input,
             actual_output=result.answer,

@@ -47,7 +47,15 @@ def embed_texts(texts: Sequence[str]) -> list[list[float]]:
             resp = client.embeddings(model=EMBED_MODEL, prompt=t)
             out.append(list(resp["embedding"]))
         return out
-    except Exception:
+    except Exception as exc:
+        import warnings
+        warnings.warn(
+            f"[embed] Ollama unavailable ({exc}); using 64-dim fallback. "
+            "If ChromaDB was indexed with Ollama embeddings, queries will fail "
+            "with a dimension mismatch. Run `ollama serve` to fix this.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
         return [_fallback_embedding(t) for t in texts]
 
 
