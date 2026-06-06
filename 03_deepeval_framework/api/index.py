@@ -2,10 +2,27 @@ import os
 import sys
 from pathlib import Path
 
-# Vercel root filesystem is read-only; deepeval writes .deepeval/ on import
+print("[vercel] START api/index.py", flush=True)
+print(f"[vercel] __file__ = {__file__}", flush=True)
+
 os.chdir("/tmp")
+print("[vercel] chdir /tmp OK", flush=True)
 
-# Add 03_deepeval_framework/ to path so llm_providers/, targets/, datasets/ are importable
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+ROOT = Path(__file__).resolve().parent.parent
+print(f"[vercel] ROOT = {ROOT}", flush=True)
+print(f"[vercel] ROOT exists = {ROOT.exists()}", flush=True)
 
-from dashboard.app import app  # noqa: E402
+if ROOT.exists():
+    print(f"[vercel] ROOT contents = {[x.name for x in ROOT.iterdir()]}", flush=True)
+
+sys.path.insert(0, str(ROOT))
+
+try:
+    print("[vercel] importing dashboard.app ...", flush=True)
+    from dashboard.app import app
+    print("[vercel] import SUCCESS", flush=True)
+except Exception as e:
+    import traceback
+    print(f"[vercel] IMPORT FAILED: {e}", flush=True)
+    traceback.print_exc()
+    raise
