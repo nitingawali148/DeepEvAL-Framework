@@ -88,6 +88,11 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "ShopSphere Chatbot API", "endpoints": ["/health", "/chat"]}
+
+
 @app.get("/health")
 def health():
     return {
