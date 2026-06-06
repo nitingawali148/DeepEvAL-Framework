@@ -8,7 +8,7 @@ const SUGGESTIONS = [
   "Can I return a hoodie after 35 days?",
 ];
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://deepevaltestingframework.vercel.app";
+const API_BASE = import.meta.env.VITE_API_URL || "https://deepevalframework.vercel.app";
 
 export default function App() {
   const [messages, setMessages] = useState([
