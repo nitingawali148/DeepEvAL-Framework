@@ -8,7 +8,7 @@ const SUGGESTIONS = [
   "Can I return a hoodie after 35 days?",
 ];
 
-const API_BASE = ""; // proxied by Vite to :8201
+const API_BASE = import.meta.env.VITE_API_URL || ""; // env var for prod, Vite proxy for dev
 
 export default function App() {
   const [messages, setMessages] = useState([

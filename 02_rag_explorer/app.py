@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import shutil
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
@@ -19,16 +20,32 @@ from rag.store import VectorStore
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data" / "ecommerce"
-UPLOAD_DIR = ROOT / "data" / "uploads"
+UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", str(ROOT / "data" / "uploads")))
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 templates = Jinja2Templates(directory=str(ROOT / "templates"))
 
-app = FastAPI(title="ShopSphere RAG Explorer", version="1.0.0")
+store = VectorStore()
+
+
+@asynccontextmanager
+async def lifespan(app_instance: FastAPI):
+    """Auto-seed corpus on cold start when store is empty (Vercel / first run)."""
+    if store.stats()["chunks"] == 0 and DATA_DIR.exists():
+        try:
+            docs = load_directory(DATA_DIR)
+            chunks = chunk_documents(docs)
+            embeddings = embed_texts([c.text for c in chunks])
+            store.add_chunks(chunks, embeddings)
+            print(f"[rag] Auto-seeded {store.stats()['chunks']} chunks", flush=True)
+        except Exception as exc:
+            print(f"[rag] Auto-seed failed: {exc}", flush=True)
+    yield
+
+
+app = FastAPI(title="ShopSphere RAG Explorer", version="1.0.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
-
-store = VectorStore()
 
 
 # -------------------- API models --------------------
