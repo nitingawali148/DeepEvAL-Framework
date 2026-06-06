@@ -1,5 +1,12 @@
 {
-  "rewrites": [{"source": "/(.*)", "destination": "/api/index"}],
+  "version": 2,
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.12",
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [{"source": "/:path*", "destination": "/api/index"}],
   "env": {
     "CHROMA_DIR": "/tmp/chroma_db",
     "UPLOAD_DIR": "/tmp/uploads"
