@@ -71,7 +71,7 @@ export default function App() {
           </div>
         </div>
         <div className="status">
-          <span className={`dot ${mode === "mock" ? "warn" : "ok"}`}></span>
+          <span className={`dot ${model === "offline" ? "err" : mode === "mock" ? "warn" : "ok"}`}></span>
           <span className="model">{model || "…"}</span>
           {mode === "mock" && <span className="badge">mock mode</span>}
         </div>

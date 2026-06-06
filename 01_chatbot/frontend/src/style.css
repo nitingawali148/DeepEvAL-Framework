@@ -84,6 +84,7 @@ body {
   background: var(--ok);
 }
 .dot.warn { background: var(--warn); }
+.dot.err  { background: #c94a4a; }
 .badge {
   background: var(--accent-soft);
   color: var(--accent);
