@@ -1,8 +1,8 @@
 import os
 import sys
+import traceback
 from pathlib import Path
 
-# deepeval writes ~/.deepeval at import time; set HOME to /tmp (only writable dir on Vercel)
 os.environ["HOME"] = "/tmp"
 os.environ["DEEPEVAL_TELEMETRY_OPT_OUT"] = "YES"
 os.chdir("/tmp")
@@ -10,4 +10,14 @@ os.chdir("/tmp")
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from dashboard.app import app  # noqa: E402
+try:
+    from dashboard.app import app
+except Exception:
+    from fastapi import FastAPI
+    from fastapi.responses import PlainTextResponse
+    _err = traceback.format_exc()
+    app = FastAPI()
+
+    @app.get("/{path:path}")
+    def show_error(path: str = ""):
+        return PlainTextResponse(_err, status_code=500)
