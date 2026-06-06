@@ -5,5 +5,8 @@
       "maxDuration": 60
     }
   },
-  "rewrites": [{"source": "/:path*", "destination": "/api/index"}]
+  "rewrites": [{"source": "/:path*", "destination": "/api/index"}],
+  "env": {
+    "DEEPEVAL_TELEMETRY_OPT_OUT": "YES"
+  }
 }
