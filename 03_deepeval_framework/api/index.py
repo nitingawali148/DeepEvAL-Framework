@@ -1,14 +1,10 @@
 import os
+import sys
+from pathlib import Path
+
 os.chdir("/tmp")
 
-from fastapi import FastAPI
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
 
-app = FastAPI()
-
-@app.get("/")
-def root():
-    return {"status": "ok", "message": "Routing works — dashboard loading next"}
-
-@app.get("/{path:path}")
-def catch_all(path: str):
-    return {"status": "ok", "path": path}
+from dashboard.app import app  # noqa: E402
