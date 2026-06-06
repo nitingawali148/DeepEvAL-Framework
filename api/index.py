@@ -86,7 +86,7 @@ def chat(req: ChatRequest):
             messages.append({"role": m.role, "content": m.content})
         messages.append({"role": "user", "content": req.message})
 
-        client = Groq(api_key=GROQ_API_KEY, timeout=8.0)
+        client = Groq(api_key=GROQ_API_KEY)
         completion = client.chat.completions.create(
             model=GROQ_MODEL,
             messages=messages,
