@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [{"source": "/:path*", "destination": "/api/index"}],
+  "env": {
+    "DEEPEVAL_TELEMETRY_OPT_OUT": "YES"
+  }
+}
