@@ -1,6 +1,6 @@
 {
-  "rewrites": [{"source": "/:path*", "destination": "/api/index"}],
-  "env": {
-    "DEEPEVAL_TELEMETRY_OPT_OUT": "YES"
-  }
+  "rewrites": [
+    {"source": "/", "destination": "/api/index"},
+    {"source": "/:path*", "destination": "/api/index"}
+  ]
 }
